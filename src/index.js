@@ -1,10 +1,15 @@
+const {prisma} = require('../generated/prisma-client/index');
 const {GraphQLServer} = require('graphql-yoga');
 
 const PORT = process.env.PORT || 4000;
 
 const typeDefs = `
   type Query {
-    feed: [Post!]!
+    posts: [Post!]!
+  }
+
+  type Mutation {
+    addPost(title: String!, content: String!): Post
   }
 
   type Post {
@@ -16,10 +21,16 @@ const typeDefs = `
 
 const resolvers = {
   Query: {
-    feed: async (parent, args, context, info) => {
-      return {
-        test: 'test',
-      };
+    posts: (root, args, context) => {
+      return context.prisma.posts();
+    },
+  },
+  Mutation: {
+    addPost: (root, args, context) => {
+      return context.prisma.createPost({
+        title: args.title,
+        content: args.content,
+      });
     },
   },
 };
@@ -27,6 +38,9 @@ const resolvers = {
 const server = new GraphQLServer({
   typeDefs,
   resolvers,
+  context: {
+    prisma,
+  },
 });
 
 server.start(() => console.log(`Server is running on port: ${PORT}`));

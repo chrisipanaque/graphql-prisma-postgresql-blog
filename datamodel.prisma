@@ -2,4 +2,5 @@ type Post {
   id: ID! @id
   title: String!
   content: String!
+  createdAt: DateTime! @createdAt
 }

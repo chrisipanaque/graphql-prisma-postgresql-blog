@@ -44,7 +44,7 @@ function App() {
       const {posts} = cache.readQuery({query: GET_POSTS});
       cache.writeQuery({
         query: GET_POSTS,
-        data: {posts: posts.concat([createPost])},
+        data: {posts: [createPost, ...posts]},
       });
     },
   });

@@ -6,6 +6,7 @@ const typeDefs = gql`
     id: ID!
     title: String!
     content: String!
+    createdAt: String!
   }
 
   type Query {
@@ -22,7 +23,7 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     posts: async (root, args, context) => {
-      const posts = await context.prisma.posts();
+      const posts = await context.prisma.posts({orderBy: 'createdAt_DESC'});
       return posts;
     },
   },

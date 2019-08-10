@@ -1,42 +1,38 @@
-const {GraphQLServer} = require('graphql-yoga');
+const {ApolloServer, gql} = require('apollo-server');
 
-const PORT = process.env.PORT || 4000;
+const posts = [
+  {
+    title: 'How to Apollo Server',
+    content: 'npm install apollo-server',
+  },
+  {
+    title: 'How to GraphQL',
+    content: 'npm install graphql',
+  },
+];
 
-const typeDefs = `
-  type Query {
-    posts: [Post!]!
-  }
-
-  type Mutation {
-    addPost(title: String!, content: String!): Post
-  }
-
+const typeDefs = gql`
   type Post {
-    id: ID!
     title: String!
     content: String!
+  }
+
+  type Query {
+    posts: [Post!]!
   }
 `;
 
 const resolvers = {
   Query: {
-    posts: (root, args, context) => {
-      return context.prisma.posts();
-    },
-  },
-  Mutation: {
-    addPost: (root, args, context) => {
-      return context.prisma.createPost({
-        title: args.title,
-        content: args.content,
-      });
-    },
+    posts: () => posts,
   },
 };
 
-const server = new GraphQLServer({
+const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
 
-server.start(() => console.log(`Server is running on port: ${PORT}`));
+server.listen().then(({url}) => {
+  console.log(`Server running on ${url}`);
+});

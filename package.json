@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/chrisipanaque/graphql-prisma-mongodb-blog#readme",
   "dependencies": {
-    "graphql-yoga": "^1.18.1"
+    "apollo-server": "^2.8.1",
+    "graphql": "^14.4.2"
   }
 }

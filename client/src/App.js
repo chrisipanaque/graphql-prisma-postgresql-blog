@@ -2,6 +2,14 @@ import React from 'react';
 import {useQuery} from '@apollo/react-hooks';
 import {gql} from 'apollo-boost';
 
+import Container from '@material-ui/core/Container';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardContent from '@material-ui/core/CardContent';
+
 function App() {
   const {loading, error, data} = useQuery(gql`
     query {
@@ -17,16 +25,29 @@ function App() {
   if (error) return <div>Error!</div>;
 
   return (
-    <div>
+    <Container maxWidth='sm'>
       <div>
         {data.posts.map(({id, title, content}) => (
-          <div key={id}>
-            <h1>{title}</h1>
-            <p>{content}</p>
-          </div>
+          <Card key={id}>
+            <CardActionArea>
+              <CardContent>
+                <Typography gutterBottom variant='h5' component='h2'>
+                  {title}
+                </Typography>
+                <Typography variant='body2' color='textSecondary' component='p'>
+                  {content}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+            <CardActions style={{justifyContent: 'flex-end'}}>
+              <Button size='small' color='primary'>
+                Read More
+              </Button>
+            </CardActions>
+          </Card>
         ))}
       </div>
-    </div>
+    </Container>
   );
 }
 

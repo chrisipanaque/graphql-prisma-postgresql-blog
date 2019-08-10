@@ -15,6 +15,7 @@ const typeDefs = gql`
   type Mutation {
     createPost(title: String!, content: String!): Post
     updatePost(id: ID!, title: String, content: String): Post
+    deletePost(id: ID!): Post
   }
 `;
 
@@ -45,6 +46,13 @@ const resolvers = {
         },
       });
       return updatedPost;
+    },
+    deletePost: async (root, args, context) => {
+      const deletedPost = await context.prisma.deletePost({
+        id: args.id,
+      });
+
+      return deletedPost;
     },
   },
 };

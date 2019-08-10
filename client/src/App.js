@@ -34,6 +34,8 @@ const ADD_POST = gql`
 function App() {
   const {loading, error, data} = useQuery(GET_POSTS);
 
+  const [addPost] = useMutation(ADD_POST);
+
   const [inputs, setInputs] = useState({
     title: '',
     content: '',
@@ -47,12 +49,21 @@ function App() {
     }));
   };
 
+  const handleAddPost = (event) => {
+    event.preventDefault();
+    addPost({variables: {title: inputs.title, content: inputs.content}});
+    setInputs(() => ({
+      title: '',
+      content: '',
+    }));
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error!</div>;
 
   return (
     <Container maxWidth='sm'>
-      <form>
+      <form onSubmit={handleAddPost}>
         <TextField
           id='title'
           label='Title'
@@ -79,9 +90,9 @@ function App() {
         </Button>
       </form>
 
-      <div style={{marginTop: '20px'}}>
+      <div style={{marginTop: '15px'}}>
         {data.posts.map(({id, title, content}) => (
-          <Card key={id}>
+          <Card key={id} style={{margin: '15px 0 15px 0'}}>
             <CardActionArea>
               <CardContent>
                 <Typography gutterBottom variant='h5' component='h2'>

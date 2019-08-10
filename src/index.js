@@ -4,13 +4,23 @@ const PORT = process.env.PORT || 4000;
 
 const typeDefs = `
   type Query {
-    hello(name: String): String!
+    feed: [Post!]!
+  }
+
+  type Post {
+    id: ID!
+    title: String!
+    content: String!
   }
 `;
 
 const resolvers = {
   Query: {
-    hello: (_, {name}) => `Hello ${name || 'World'}`,
+    feed: async (parent, args, context, info) => {
+      return {
+        test: 'test',
+      };
+    },
   },
 };
 

@@ -1,0 +1,6 @@
+endpoint: https://blog-f493a8d064.herokuapp.com/graphql-prisma-mongodb-blog/dev
+datamodel: datamodel.prisma
+
+generate:
+  - generator: javascript-client
+    output: ./generated/prisma-client/

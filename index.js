@@ -1,15 +1,5 @@
 const {ApolloServer, gql} = require('apollo-server');
-
-const posts = [
-  {
-    title: 'How to Apollo Server',
-    content: 'npm install apollo-server',
-  },
-  {
-    title: 'How to GraphQL',
-    content: 'npm install graphql',
-  },
-];
+const {prisma} = require('./generated/prisma-client');
 
 const typeDefs = gql`
   type Post {
@@ -24,7 +14,10 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    posts: () => posts,
+    posts: async () => {
+      const posts = await prisma.posts();
+      return posts;
+    },
   },
 };
 

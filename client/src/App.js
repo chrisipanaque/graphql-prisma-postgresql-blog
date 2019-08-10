@@ -21,8 +21,8 @@ const GET_POSTS = gql`
   }
 `;
 
-const ADD_POST = gql`
-  mutation AddPost($title: String!, $content: String!) {
+const CREATE_POST = gql`
+  mutation CreatePost($title: String!, $content: String!) {
     createPost(title: $title, content: $content) {
       id
       title
@@ -34,7 +34,20 @@ const ADD_POST = gql`
 function App() {
   const {loading, error, data} = useQuery(GET_POSTS);
 
-  const [addPost] = useMutation(ADD_POST);
+  const [createPost] = useMutation(CREATE_POST, {
+    update(
+      cache,
+      {
+        data: {createPost},
+      },
+    ) {
+      const {posts} = cache.readQuery({query: GET_POSTS});
+      cache.writeQuery({
+        query: GET_POSTS,
+        data: {posts: posts.concat([createPost])},
+      });
+    },
+  });
 
   const [inputs, setInputs] = useState({
     title: '',
@@ -51,7 +64,7 @@ function App() {
 
   const handleAddPost = (event) => {
     event.preventDefault();
-    addPost({variables: {title: inputs.title, content: inputs.content}});
+    createPost({variables: {title: inputs.title, content: inputs.content}});
     setInputs(() => ({
       title: '',
       content: '',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useQuery, useMutation} from '@apollo/react-hooks';
 import {gql} from 'apollo-boost';
 
@@ -34,6 +34,19 @@ const ADD_POST = gql`
 function App() {
   const {loading, error, data} = useQuery(GET_POSTS);
 
+  const [inputs, setInputs] = useState({
+    title: '',
+    content: '',
+  });
+
+  const handleInputChange = (event) => {
+    event.persist();
+    setInputs((inputs) => ({
+      ...inputs,
+      [event.target.id]: event.target.value,
+    }));
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error!</div>;
 
@@ -47,6 +60,8 @@ function App() {
           multiline
           rowsMax='4'
           fullWidth
+          value={inputs.title}
+          onChange={handleInputChange}
         />
         <TextField
           id='content'
@@ -56,6 +71,8 @@ function App() {
           variant='outlined'
           rows='8'
           fullWidth
+          value={inputs.content}
+          onChange={handleInputChange}
         />
         <Button type='submit' variant='contained' color='primary' fullWidth>
           ADD POST

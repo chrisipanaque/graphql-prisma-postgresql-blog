@@ -14,6 +14,7 @@ const typeDefs = gql`
 
   type Mutation {
     createPost(title: String!, content: String!): Post
+    updatePost(id: ID!, title: String, content: String): Post
   }
 `;
 
@@ -32,6 +33,18 @@ const resolvers = {
       });
 
       return newPost;
+    },
+    updatePost: async (root, args, context) => {
+      const updatedPost = await context.prisma.updatePost({
+        data: {
+          title: args.title,
+          content: args.content,
+        },
+        where: {
+          id: args.id,
+        },
+      });
+      return updatedPost;
     },
   },
 };

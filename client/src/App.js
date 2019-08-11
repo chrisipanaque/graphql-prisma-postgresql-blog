@@ -66,7 +66,22 @@ const CREATE_POST = gql`
   }
 `;
 
-function App() {
+const DELETE_POST = gql`
+  mutation DeletePost($id: ID!) {
+    deletePost(id: $id) {
+      id
+      title
+      content
+    }
+  }
+`;
+
+export default function App() {
+  const [inputs, setInputs] = useState({
+    title: '',
+    content: '',
+  });
+
   const [openDialog, setOpenDialog] = useState(false);
 
   const [expandedId, setExpandedId] = useState('');
@@ -88,9 +103,19 @@ function App() {
     },
   });
 
-  const [inputs, setInputs] = useState({
-    title: '',
-    content: '',
+  const [deletePost] = useMutation(DELETE_POST, {
+    update(
+      cache,
+      {
+        data: {deletePost},
+      },
+    ) {
+      const {posts} = cache.readQuery({query: GET_POSTS});
+      cache.writeQuery({
+        query: GET_POSTS,
+        data: {posts: posts.filter((post) => post.id !== deletePost.id)},
+      });
+    },
   });
 
   const handleExpandCard = (id) => {
@@ -117,7 +142,7 @@ function App() {
     }));
   };
 
-  const handleAddPost = (event) => {
+  const handleCreatePost = (event) => {
     event.preventDefault();
     createPost({variables: {title: inputs.title, content: inputs.content}});
     handleCloseDialog();
@@ -125,6 +150,10 @@ function App() {
       title: '',
       content: '',
     }));
+  };
+
+  const handleDeletePost = (id) => {
+    deletePost({variables: {id}});
   };
 
   const classes = useStyles();
@@ -148,7 +177,7 @@ function App() {
       </div>
 
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <form onSubmit={handleAddPost}>
+        <form onSubmit={handleCreatePost}>
           <DialogTitle>Create New Post</DialogTitle>
           <DialogContent>
             <TextField
@@ -222,7 +251,9 @@ function App() {
                 </Typography>
               </CardContent>
               <CardActions style={{justifyContent: 'flex-end'}}>
-                <Button color='secondary'>Delete Post</Button>
+                <Button color='secondary' onClick={() => handleDeletePost(id)}>
+                  Delete Post
+                </Button>
               </CardActions>
             </Collapse>
           </Card>
@@ -231,5 +262,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

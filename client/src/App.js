@@ -2,6 +2,10 @@ import React, {useState} from 'react';
 import {useQuery, useMutation} from '@apollo/react-hooks';
 import {gql} from 'apollo-boost';
 
+import {makeStyles} from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+
 import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
@@ -10,6 +14,19 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    marginBottom: '20px',
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    flexGrow: 1,
+  },
+}));
 
 const GET_POSTS = gql`
   query {
@@ -71,66 +88,84 @@ function App() {
     }));
   };
 
+  const classes = useStyles();
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error!</div>;
 
   return (
-    <Container maxWidth='sm'>
-      <form onSubmit={handleAddPost}>
-        <TextField
-          id='title'
-          label='Title'
-          variant='outlined'
-          multiline
-          rowsMax='4'
-          fullWidth
-          value={inputs.title}
-          onChange={handleInputChange}
-        />
-        <TextField
-          id='content'
-          label='Content'
-          multiline
-          margin='normal'
-          variant='outlined'
-          rows='8'
-          fullWidth
-          value={inputs.content}
-          onChange={handleInputChange}
-        />
-        <Button
-          type='submit'
-          variant='contained'
-          color='primary'
-          fullWidth
-          disabled={inputs.title && inputs.content ? false : true}
-        >
-          ADD POST
-        </Button>
-      </form>
-
-      <div style={{marginTop: '15px'}}>
-        {data.posts.map(({id, title, content}) => (
-          <Card key={id} style={{margin: '15px 0 15px 0'}}>
-            <CardActionArea>
-              <CardContent>
-                <Typography gutterBottom variant='h5' component='h2'>
-                  {title}
-                </Typography>
-                <Typography variant='body2' color='textSecondary' component='p'>
-                  {content}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-            <CardActions style={{justifyContent: 'flex-end'}}>
-              <Button size='small' color='primary'>
-                Read More
-              </Button>
-            </CardActions>
-          </Card>
-        ))}
+    <div>
+      <div className={classes.root}>
+        <AppBar position='static'>
+          <Toolbar>
+            <Typography variant='h6' className={classes.title}>
+              GraphQL Blog
+            </Typography>
+            <Button color='inherit'>Create Post</Button>
+          </Toolbar>
+        </AppBar>
       </div>
-    </Container>
+      <Container maxWidth='sm'>
+        <form onSubmit={handleAddPost}>
+          <TextField
+            id='title'
+            label='Title'
+            variant='outlined'
+            multiline
+            rowsMax='4'
+            fullWidth
+            value={inputs.title}
+            onChange={handleInputChange}
+          />
+          <TextField
+            id='content'
+            label='Content'
+            multiline
+            margin='normal'
+            variant='outlined'
+            rows='8'
+            fullWidth
+            value={inputs.content}
+            onChange={handleInputChange}
+          />
+          <Button
+            type='submit'
+            variant='contained'
+            color='primary'
+            fullWidth
+            disabled={inputs.title && inputs.content ? false : true}
+          >
+            ADD POST
+          </Button>
+        </form>
+
+        <div style={{marginTop: '15px'}}>
+          {data.posts.map(({id, title, content}) => (
+            <Card key={id} style={{margin: '15px 0 15px 0'}}>
+              <CardActionArea>
+                <CardContent>
+                  <Typography gutterBottom variant='h5' component='h2'>
+                    {title}
+                  </Typography>
+                  <Typography
+                    variant='body2'
+                    color='textSecondary'
+                    component='p'
+                  >
+                    {content}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+              <CardActions style={{justifyContent: 'flex-end'}}>
+                <Button size='small' color='primary'>
+                  Read More
+                </Button>
+              </CardActions>
+            </Card>
+          ))}
+        </div>
+      </Container>
+    </div>
   );
 }
 

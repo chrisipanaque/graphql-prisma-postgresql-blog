@@ -71,14 +71,6 @@ function App() {
 
   const [expandedId, setExpandedId] = useState('');
 
-  function handleExpandClick(id) {
-    if (id === expandedId) {
-      setExpandedId('');
-    } else {
-      setExpandedId(id);
-    }
-  }
-
   const {loading, error, data} = useQuery(GET_POSTS);
 
   const [createPost] = useMutation(CREATE_POST, {
@@ -100,6 +92,14 @@ function App() {
     title: '',
     content: '',
   });
+
+  const handleExpandCard = (id) => {
+    if (id === expandedId) {
+      setExpandedId('');
+    } else {
+      setExpandedId(id);
+    }
+  };
 
   const handleClickOpenDialog = () => {
     setOpenDialog(true);
@@ -193,14 +193,16 @@ function App() {
         {data.posts.map(({id, title, content}) => (
           <Card key={id} style={{margin: '15px 0 15px 0'}}>
             <div style={{display: 'flex', justifyContent: 'space-between'}}>
-              <CardContent>
-                <Typography variant='h5' component='h2'>
-                  {title}
-                </Typography>
-              </CardContent>
+              <CardActionArea onClick={() => handleExpandCard(id)}>
+                <CardContent>
+                  <Typography variant='h5' component='h2'>
+                    {title}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
               <CardActions>
                 <IconButton
-                  onClick={() => handleExpandClick(id)}
+                  onClick={() => handleExpandCard(id)}
                   className={clsx(classes.expand, {
                     [classes.expandOpen]: id === expandedId,
                   })}
@@ -219,6 +221,9 @@ function App() {
                   {content}
                 </Typography>
               </CardContent>
+              <CardActions style={{justifyContent: 'flex-end'}}>
+                <Button color='secondary'>Delete Post</Button>
+              </CardActions>
             </Collapse>
           </Card>
         ))}

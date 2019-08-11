@@ -98,7 +98,13 @@ function App() {
           value={inputs.content}
           onChange={handleInputChange}
         />
-        <Button type='submit' variant='contained' color='primary' fullWidth>
+        <Button
+          type='submit'
+          variant='contained'
+          color='primary'
+          fullWidth
+          disabled={inputs.title && inputs.content ? false : true}
+        >
           ADD POST
         </Button>
       </form>

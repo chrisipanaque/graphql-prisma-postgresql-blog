@@ -82,6 +82,8 @@ export default function App() {
     content: '',
   });
 
+  const [isEditingId, setIsEditingId] = useState('');
+
   const [openDialog, setOpenDialog] = useState(false);
 
   const [expandedId, setExpandedId] = useState('');
@@ -224,9 +226,18 @@ export default function App() {
             <div style={{display: 'flex', justifyContent: 'space-between'}}>
               <CardActionArea onClick={() => handleExpandCard(id)}>
                 <CardContent>
-                  <Typography variant='h5' component='h2'>
-                    {title}
-                  </Typography>
+                  {id === isEditingId ? (
+                    <TextField
+                      id='title-update'
+                      label='Title'
+                      value={title}
+                      margin='normal'
+                    />
+                  ) : (
+                    <Typography variant='h5' component='h2'>
+                      {title}
+                    </Typography>
+                  )}
                 </CardContent>
               </CardActionArea>
               <CardActions>
@@ -251,6 +262,9 @@ export default function App() {
                 </Typography>
               </CardContent>
               <CardActions style={{justifyContent: 'flex-end'}}>
+                <Button color='primary' onClick={() => setIsEditingId(id)}>
+                  Edit Post
+                </Button>
                 <Button color='secondary' onClick={() => handleDeletePost(id)}>
                   Delete Post
                 </Button>

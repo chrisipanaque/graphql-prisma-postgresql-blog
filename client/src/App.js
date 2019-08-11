@@ -23,6 +23,8 @@ import CardActions from '@material-ui/core/CardActions';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 const GET_POSTS = gql`
   query {
     posts {
@@ -106,9 +108,9 @@ export default function App() {
 
   const [expandedCardId, setExpandedCardId] = useState('');
 
-  const {loading, error, data} = useQuery(GET_POSTS);
+  const {loading: queryLoading, error: queryError, data} = useQuery(GET_POSTS);
 
-  const [createPost] = useMutation(CREATE_POST, {
+  const [createPost, {loading: createLoading}] = useMutation(CREATE_POST, {
     update(
       cache,
       {
@@ -123,7 +125,7 @@ export default function App() {
     },
   });
 
-  const [updatePost] = useMutation(UPDATE_POST);
+  const [updatePost, {loading: updateLoading}] = useMutation(UPDATE_POST);
 
   const [deletePost] = useMutation(DELETE_POST, {
     update(
@@ -220,8 +222,19 @@ export default function App() {
     deletePost({variables: {id}});
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error!</div>;
+  if (queryLoading)
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          padding: '80px',
+        }}
+      >
+        <CircularProgress />
+      </div>
+    );
+  if (queryError) return <div>Error!</div>;
 
   return (
     <div>
@@ -330,57 +343,87 @@ export default function App() {
         </form>
       </Dialog>
 
+      {createLoading && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            padding: '10px',
+          }}
+        >
+          <CircularProgress />
+        </div>
+      )}
+
       <div style={{marginTop: '15px'}}>
         {data.posts.map(({id, title, content}) => (
           <Card key={id} style={{margin: '15px 0 15px 0'}}>
-            <div style={{display: 'flex', justifyContent: 'space-between'}}>
-              <CardActionArea onClick={() => handleExpandCard(id)}>
-                <CardContent>
-                  <Typography variant='h5' component='h2'>
-                    {title}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-              <CardActions>
-                <IconButton
-                  onClick={() => handleExpandCard(id)}
-                  className={clsx(classes.expand, {
-                    [classes.expandOpen]: id === expandedCardId,
-                  })}
+            {updateLoading && id === expandedCardId ? (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  padding: '80px',
+                }}
+              >
+                <CircularProgress />
+              </div>
+            ) : (
+              <div>
+                <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                  <CardActionArea onClick={() => handleExpandCard(id)}>
+                    <CardContent>
+                      <Typography variant='h5' component='h2'>
+                        {title}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                  <CardActions>
+                    <IconButton
+                      onClick={() => handleExpandCard(id)}
+                      className={clsx(classes.expand, {
+                        [classes.expandOpen]: id === expandedCardId,
+                      })}
+                    >
+                      <ExpandMoreIcon />
+                    </IconButton>
+                  </CardActions>
+                </div>
+                <Collapse
+                  in={id === expandedCardId ? true : false}
+                  timeout='auto'
+                  unmountOnExit
                 >
-                  <ExpandMoreIcon />
-                </IconButton>
-              </CardActions>
-            </div>
-            <Collapse
-              in={id === expandedCardId ? true : false}
-              timeout='auto'
-              unmountOnExit
-            >
-              <CardContent>
-                <Typography variant='body2' color='textSecondary' component='p'>
-                  {content}
-                </Typography>
-              </CardContent>
-              <CardActions style={{justifyContent: 'flex-end'}}>
-                <Button
-                  variant='outlined'
-                  color='primary'
-                  onClick={() =>
-                    handleClickOpenUpdateDialog(id, title, content)
-                  }
-                >
-                  Edit Post
-                </Button>
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  onClick={() => handleDeletePost(id)}
-                >
-                  Delete Post
-                </Button>
-              </CardActions>
-            </Collapse>
+                  <CardContent>
+                    <Typography
+                      variant='body1'
+                      color='textSecondary'
+                      component='p'
+                    >
+                      {content}
+                    </Typography>
+                  </CardContent>
+                  <CardActions style={{justifyContent: 'flex-end'}}>
+                    <Button
+                      variant='outlined'
+                      color='primary'
+                      onClick={() =>
+                        handleClickOpenUpdateDialog(id, title, content)
+                      }
+                    >
+                      Edit Post
+                    </Button>
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      onClick={() => handleDeletePost(id)}
+                    >
+                      Delete Post
+                    </Button>
+                  </CardActions>
+                </Collapse>
+              </div>
+            )}
           </Card>
         ))}
       </div>

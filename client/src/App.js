@@ -6,6 +6,11 @@ import {makeStyles} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
@@ -49,6 +54,8 @@ const CREATE_POST = gql`
 `;
 
 function App() {
+  const [openDialog, setOpenDialog] = useState(false);
+
   const {loading, error, data} = useQuery(GET_POSTS);
 
   const [createPost] = useMutation(CREATE_POST, {
@@ -71,6 +78,14 @@ function App() {
     content: '',
   });
 
+  const handleClickOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
   const handleInputChange = (event) => {
     event.persist();
     setInputs((inputs) => ({
@@ -82,6 +97,7 @@ function App() {
   const handleAddPost = (event) => {
     event.preventDefault();
     createPost({variables: {title: inputs.title, content: inputs.content}});
+    handleCloseDialog();
     setInputs(() => ({
       title: '',
       content: '',
@@ -101,44 +117,56 @@ function App() {
             <Typography variant='h6' className={classes.title}>
               GraphQL Blog
             </Typography>
-            <Button color='inherit'>Create Post</Button>
+            <Button color='inherit' onClick={handleClickOpenDialog}>
+              Create Post
+            </Button>
           </Toolbar>
         </AppBar>
       </div>
-      <Container maxWidth='sm'>
-        <form onSubmit={handleAddPost}>
-          <TextField
-            id='title'
-            label='Title'
-            variant='outlined'
-            multiline
-            rowsMax='4'
-            fullWidth
-            value={inputs.title}
-            onChange={handleInputChange}
-          />
-          <TextField
-            id='content'
-            label='Content'
-            multiline
-            margin='normal'
-            variant='outlined'
-            rows='8'
-            fullWidth
-            value={inputs.content}
-            onChange={handleInputChange}
-          />
-          <Button
-            type='submit'
-            variant='contained'
-            color='primary'
-            fullWidth
-            disabled={inputs.title && inputs.content ? false : true}
-          >
-            ADD POST
-          </Button>
-        </form>
 
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <form onSubmit={handleAddPost}>
+          <DialogTitle>Create New Post</DialogTitle>
+          <DialogContent>
+            <TextField
+              id='title'
+              label='Title'
+              variant='outlined'
+              multiline
+              rowsMax='4'
+              fullWidth
+              value={inputs.title}
+              onChange={handleInputChange}
+            />
+            <TextField
+              id='content'
+              label='Content'
+              multiline
+              margin='normal'
+              variant='outlined'
+              rows='8'
+              fullWidth
+              value={inputs.content}
+              onChange={handleInputChange}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color='primary'>
+              Cancel
+            </Button>
+            <Button
+              type='submit'
+              variant='contained'
+              color='primary'
+              disabled={inputs.title && inputs.content ? false : true}
+            >
+              ADD POST
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      <Container maxWidth='sm'>
         <div style={{marginTop: '15px'}}>
           {data.posts.map(({id, title, content}) => (
             <Card key={id} style={{margin: '15px 0 15px 0'}}>

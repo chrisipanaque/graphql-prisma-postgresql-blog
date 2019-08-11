@@ -3,6 +3,7 @@ import {useQuery, useMutation} from '@apollo/react-hooks';
 import {gql} from 'apollo-boost';
 
 import {makeStyles} from '@material-ui/core/styles';
+import clsx from 'clsx';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 
@@ -11,7 +12,9 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-import Container from '@material-ui/core/Container';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
@@ -30,6 +33,16 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
+  },
+  expand: {
+    transform: 'rotate(0deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+  },
+  expandOpen: {
+    transform: 'rotate(180deg)',
   },
 }));
 
@@ -55,6 +68,16 @@ const CREATE_POST = gql`
 
 function App() {
   const [openDialog, setOpenDialog] = useState(false);
+
+  const [expandedId, setExpandedId] = useState('');
+
+  function handleExpandClick(id) {
+    if (id === expandedId) {
+      setExpandedId('');
+    } else {
+      setExpandedId(id);
+    }
+  }
 
   const {loading, error, data} = useQuery(GET_POSTS);
 
@@ -166,33 +189,40 @@ function App() {
         </form>
       </Dialog>
 
-      <Container maxWidth='sm'>
-        <div style={{marginTop: '15px'}}>
-          {data.posts.map(({id, title, content}) => (
-            <Card key={id} style={{margin: '15px 0 15px 0'}}>
-              <CardActionArea>
-                <CardContent>
-                  <Typography gutterBottom variant='h5' component='h2'>
-                    {title}
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    color='textSecondary'
-                    component='p'
-                  >
-                    {content}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-              <CardActions style={{justifyContent: 'flex-end'}}>
-                <Button size='small' color='primary'>
-                  Read More
-                </Button>
+      <div style={{marginTop: '15px'}}>
+        {data.posts.map(({id, title, content}) => (
+          <Card key={id} style={{margin: '15px 0 15px 0'}}>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+              <CardContent>
+                <Typography variant='h5' component='h2'>
+                  {title}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <IconButton
+                  onClick={() => handleExpandClick(id)}
+                  className={clsx(classes.expand, {
+                    [classes.expandOpen]: id === expandedId,
+                  })}
+                >
+                  <ExpandMoreIcon />
+                </IconButton>
               </CardActions>
-            </Card>
-          ))}
-        </div>
-      </Container>
+            </div>
+            <Collapse
+              in={id === expandedId ? true : false}
+              timeout='auto'
+              unmountOnExit
+            >
+              <CardContent>
+                <Typography variant='body2' color='textSecondary' component='p'>
+                  {content}
+                </Typography>
+              </CardContent>
+            </Collapse>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

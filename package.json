@@ -1,5 +1,5 @@
 {
-  "name": "graphql-prisma-mongodb-blog",
+  "name": "graphql-prisma-postgresql-blog",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chrisipanaque/graphql-prisma-mongodb-blog.git"
+    "url": "git+https://github.com/chrisipanaque/graphql-prisma-postgresql-blog.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/chrisipanaque/graphql-prisma-mongodb-blog/issues"
+    "url": "https://github.com/chrisipanaque/graphql-prisma-postgresql-blog/issues"
   },
-  "homepage": "https://github.com/chrisipanaque/graphql-prisma-mongodb-blog#readme",
+  "homepage": "https://github.com/chrisipanaque/graphql-prisma-postgresql-blog#readme",
   "dependencies": {
     "apollo-server": "^2.8.1",
     "graphql": "^14.4.2",

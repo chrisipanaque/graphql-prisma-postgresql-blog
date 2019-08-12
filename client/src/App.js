@@ -86,6 +86,9 @@ const useStyles = makeStyles((theme) => ({
   expandOpen: {
     transform: 'rotate(180deg)',
   },
+  dialogActions: {
+    padding: '0 25px 20px 20px',
+  },
 }));
 
 export default function App() {
@@ -105,6 +108,13 @@ export default function App() {
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
 
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const [deleteId, setDeleteId] = useState({
+    id: '',
+    title: '',
+  });
 
   const [expandedCardId, setExpandedCardId] = useState('');
 
@@ -127,7 +137,7 @@ export default function App() {
 
   const [updatePost, {loading: updateLoading}] = useMutation(UPDATE_POST);
 
-  const [deletePost] = useMutation(DELETE_POST, {
+  const [deletePost, {loading: deleteLoading}] = useMutation(DELETE_POST, {
     update(
       cache,
       {
@@ -150,11 +160,11 @@ export default function App() {
     }
   };
 
-  const handleClickOpenDialog = () => {
+  const handleOpenCreateDialog = () => {
     setOpenCreateDialog(true);
   };
 
-  const handleCloseDialog = () => {
+  const handleCloseCreateDialog = () => {
     setOpenCreateDialog(false);
     setCreateInputs(() => ({
       title: '',
@@ -162,7 +172,7 @@ export default function App() {
     }));
   };
 
-  const handleClickOpenUpdateDialog = (id, title, content) => {
+  const handleOpenUpdateDialog = (id, title, content) => {
     setUpdateInputs((updateInputs) => ({
       ...updateInputs,
       id,
@@ -179,6 +189,24 @@ export default function App() {
       id: '',
       title: '',
       content: '',
+    }));
+  };
+
+  const handleOpenDeleteDialog = (id, title) => {
+    setDeleteId((deleteId) => ({
+      ...deleteId,
+      id,
+      title,
+    }));
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    setDeleteId((deleteId) => ({
+      ...deleteId,
+      id: '',
+      title: '',
     }));
   };
 
@@ -203,7 +231,7 @@ export default function App() {
     createPost({
       variables: {title: createInputs.title, content: createInputs.content},
     });
-    handleCloseDialog();
+    handleCloseCreateDialog();
   };
 
   const handleUpdatePost = (event) => {
@@ -220,6 +248,7 @@ export default function App() {
 
   const handleDeletePost = (id) => {
     deletePost({variables: {id}});
+    handleCloseDeleteDialog();
   };
 
   if (queryLoading)
@@ -231,9 +260,10 @@ export default function App() {
           padding: '80px',
         }}
       >
-        <CircularProgress />
+        <CircularProgress size={100} />
       </div>
     );
+
   if (queryError) return <div>Error!</div>;
 
   return (
@@ -247,7 +277,7 @@ export default function App() {
             <Button
               variant='outlined'
               color='inherit'
-              onClick={handleClickOpenDialog}
+              onClick={handleOpenCreateDialog}
             >
               Create Post
             </Button>
@@ -255,7 +285,7 @@ export default function App() {
         </AppBar>
       </div>
 
-      <Dialog open={openCreateDialog} onClose={handleCloseDialog}>
+      <Dialog open={openCreateDialog} onClose={handleCloseCreateDialog}>
         <form onSubmit={handleCreatePost}>
           <DialogTitle>Create New Post</DialogTitle>
           <DialogContent>
@@ -281,10 +311,8 @@ export default function App() {
               onChange={handleInputChange}
             />
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog} color='primary'>
-              Cancel
-            </Button>
+          <DialogActions className={classes.dialogActions}>
+            <Button onClick={handleCloseCreateDialog}>Cancel</Button>
             <Button
               type='submit'
               variant='contained'
@@ -325,10 +353,8 @@ export default function App() {
               onChange={handleUpdateInputChange}
             />
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseUpdateDialog} color='primary'>
-              Cancel
-            </Button>
+          <DialogActions className={classes.dialogActions}>
+            <Button onClick={handleCloseUpdateDialog}>Cancel</Button>
             <Button
               type='submit'
               variant='contained'
@@ -341,6 +367,36 @@ export default function App() {
             </Button>
           </DialogActions>
         </form>
+      </Dialog>
+
+      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+        <DialogTitle>Delete Post</DialogTitle>
+        <DialogContent>
+          <Typography variant='body1' component='p'>
+            Are you sure you want to DELETE:
+          </Typography>
+          <Typography
+            variant='body1'
+            component='p'
+            color='secondary'
+            gutterBottom
+          >
+            {deleteId.title}
+          </Typography>
+          <Typography variant='body1' component='p'>
+            Clicking DELETE will permanently DELETE this post!
+          </Typography>
+        </DialogContent>
+        <DialogActions className={classes.dialogActions}>
+          <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+          <Button
+            variant='contained'
+            color='secondary'
+            onClick={() => handleDeletePost(deleteId.id)}
+          >
+            Delete
+          </Button>
+        </DialogActions>
       </Dialog>
 
       {createLoading && (
@@ -368,6 +424,16 @@ export default function App() {
               >
                 <CircularProgress />
               </div>
+            ) : deleteLoading && id === expandedCardId ? (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  padding: '80px',
+                }}
+              >
+                <CircularProgress color='secondary' />
+              </div>
             ) : (
               <div>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
@@ -389,11 +455,7 @@ export default function App() {
                     </IconButton>
                   </CardActions>
                 </div>
-                <Collapse
-                  in={id === expandedCardId ? true : false}
-                  timeout='auto'
-                  unmountOnExit
-                >
+                <Collapse in={id === expandedCardId ? true : false}>
                   <CardContent>
                     <Typography
                       variant='body1'
@@ -407,16 +469,14 @@ export default function App() {
                     <Button
                       variant='outlined'
                       color='primary'
-                      onClick={() =>
-                        handleClickOpenUpdateDialog(id, title, content)
-                      }
+                      onClick={() => handleOpenUpdateDialog(id, title, content)}
                     >
                       Edit Post
                     </Button>
                     <Button
                       variant='outlined'
                       color='secondary'
-                      onClick={() => handleDeletePost(id)}
+                      onClick={() => handleOpenDeleteDialog(id, title)}
                     >
                       Delete Post
                     </Button>

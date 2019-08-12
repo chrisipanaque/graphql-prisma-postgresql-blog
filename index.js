@@ -1,5 +1,12 @@
-const {ApolloServer, gql} = require('apollo-server');
+const express = require('express');
+const path = require('path');
+const {ApolloServer} = require('apollo-server-express');
+const {gql} = require('apollo-server');
 const {prisma} = require('./generated/prisma-client');
+
+const app = express();
+
+const PORT = process.env.PORT || 4000;
 
 const typeDefs = gql`
   type Post {
@@ -66,6 +73,14 @@ const server = new ApolloServer({
   },
 });
 
-server.listen().then(({url}) => {
-  console.log(`Server running on ${url}`);
+app.use(express.static(path.join(__dirname, 'client/build')));
+
+server.applyMiddleware({app, path: '/api'});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/client/build/index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port: ${PORT}`);
 });

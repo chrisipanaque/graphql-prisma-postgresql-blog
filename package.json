@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/chrisipanaque/graphql-prisma-postgresql-blog#readme",
   "dependencies": {
-    "apollo-server": "^2.8.1",
+    "apollo-server": "^2.14.2",
     "express": "^4.17.1",
     "graphql": "^14.4.2",
     "graphql-markdown": "^5.2.0",
